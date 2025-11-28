@@ -139,8 +139,9 @@ class Paper {
 
   init(paper) {
     this.paperEl = paper;
-    const startX = -180 - Math.random() * 360;
-    const startY = (Math.random() * 320) - 200;
+    const isNarrow = window.matchMedia('(max-width: 768px)').matches;
+    const startX = isNarrow ? (Math.random() * 160 - 80) : (-180 - Math.random() * 360);
+    const startY = isNarrow ? (Math.random() * 140 - 60) : ((Math.random() * 320) - 200);
     this.currentPaperX = startX;
     this.currentPaperY = startY;
     this.scale = 1;

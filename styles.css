@@ -237,9 +237,58 @@ body.intro-locked .intro-overlay{
 .cap-sub{font-size:13px;color:rgba(255,255,255,0.82);margin-top:6px}
 .paper:hover{box-shadow:0 30px 80px rgba(2,6,23,0.7);transform:scale(1.02)}
 @media (max-width:920px){
-  .paper.glass{width:260px;min-height:200px}
+  .paper.glass{width:240px;min-height:190px}
+  .paper{width:220px;min-height:160px}
   .side-note{display:none}
   .paper-guide{width:92%; bottom:9%}
+  .memory-box{
+    left:50%;
+    right:auto;
+    width:90%;
+    min-height:240px;
+    top:auto;
+    bottom:8%;
+    transform:translate(-50%, 0);
+    padding:18px;
+  }
+  .memory-box-arrow{
+    position:relative;
+    left:auto;
+    top:auto;
+    transform:none;
+    margin-top:12px;
+    text-align:center;
+  }
+  .memory-box-cues{
+    left:50%;
+    top:-18px;
+    width:68%;
+    height:24px;
+    flex-direction:row;
+    justify-content:space-between;
+    transform:translateX(-50%);
+  }
+  .memory-box-cues span{
+    font-size:20px;
+    animation-duration:3s;
+  }
+}
+
+@media (max-width:700px){
+  .paper{width:200px;min-height:150px}
+  .paper.glass{width:220px;min-height:170px}
+  .memory-box{min-height:220px;padding:16px}
+  .memory-box-feed{min-height:64px}
+}
+
+@media (max-width:520px){
+  .paper{width:180px;min-height:140px}
+  .memory-box{width:92%;bottom:6%;padding:14px}
+  .memory-box-inner{padding:12px}
+  .memory-box h3{font-size:18px}
+  .memory-box p{font-size:12px}
+  .memory-box-hint{margin-top:10px}
+  .memory-box-cues{width:80%}
 }
 
 /* Modal / pages (responsive & max width) */
