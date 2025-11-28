@@ -448,3 +448,11 @@ html,body{
   position:absolute;
 }
 
+/* ------------------ modal mobile tweak (appended) ------------------ */
+/* Keep desktop unchanged; on mobile make modal pages layout predictable and ensure active page is fully visible */
+@media (max-width: 920px) {
+  .modal-card { grid-template-columns: 1fr !important; padding:12px !important; gap:12px !important; align-items:flex-start; }
+  .modal-card .page-stage { width:100% !important; padding:6px !important; overflow:hidden !important; display:flex !important; flex-direction:column; gap:12px; align-items:center; }
+  .modal-card .page { width:100% !important; max-width:100% !important; margin:0 auto !important; box-sizing:border-box !important; transform:none !important; }
+  .controls-row { gap:8px; padding:10px; }
+}

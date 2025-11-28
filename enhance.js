@@ -1,8 +1,4 @@
-// enhance.js — final polished version
-// Preserves your beautiful UI (theme/responsiveness) and fixes the "visit surprise" flow.
-// Drop detection is robust (bounding rect + elementFromPoint fallbacks).
-// Slideshow: intro (bg), text2 (bg2), final wish, then photo pages. Typewriter + progress + dots + prev/next/close.
-
+// enhance.js — final polished version (with small Next/Prev centering fix)
 document.addEventListener('DOMContentLoaded', () => {
 
   /* --------------------------
@@ -234,6 +230,8 @@ Every part of you feels like poetry written just for me. Wishing a magical birth
     const typeEl = page.querySelector('.typewriter');
     if (!typeEl) return;
     const full = typeEl.dataset.full || '';
+
+    // === TYPEWRITER THEN PROGRESS ===
     typeText(typeEl, full, 26).then(()=> {
       if (progressBarEl) {
         progressBarEl.style.transition = `width 900ms linear`;
@@ -241,6 +239,14 @@ Every part of you feels like poetry written just for me. Wishing a magical birth
       }
       if (i === 0) spawnFloatingThumbs();
     });
+
+    // === SMALL FIX: ensure the active page is scrolled into view inside the modal ===
+    // This line keeps the active page centered/visible on small screens
+    try {
+      page.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+    } catch (e) {
+      // ignore if scrollIntoView isn't supported
+    }
   }
 
   function goToPage(i){ setActivePage(i); }

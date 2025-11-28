@@ -111,4 +111,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const instance = new Paper();
     instance.init(p);
   });
+
+  // expose list and helper for optional use by other scripts
+  window.__paperList = papers;
+
+  window.bringPaperToCenter = function(el, options = {}) {
+    if (!el) return;
+    const ms = (typeof options.animateMs === 'number') ? options.animateMs : 320;
+    // ensure visible and above
+    el.style.display = '';
+    el.style.visibility = 'visible';
+    el.style.pointerEvents = 'auto';
+    el.style.zIndex = highestZ++;
+    el.style.transition = `transform ${ms}ms ease, opacity ${ms}ms ease`;
+    el.style.transform = `translateX(-50%) translateY(-50%) rotateZ(0deg)`;
+    setTimeout(()=> { el.style.transition = ''; }, ms + 40);
+  };
 });
