@@ -1,102 +1,93 @@
-// Pages
-const startPage = document.getElementById("startPage");
-const photosPage = document.getElementById("photosPage");
-const finalPage = document.getElementById("finalPage");
+// script.js — desktop mouse dragging behavior (glass cards)
+let highestZ = 1;
 
-// Buttons
-const startBtn = document.getElementById("startBtn");
-const nextBtn = document.getElementById("nextBtn");
-const restartBtn = document.getElementById("restartBtn");
+class Paper {
+  constructor() {
+    this.holdingPaper = false;
+    this.mouseTouchX = 0;
+    this.mouseTouchY = 0;
+    this.mouseX = 0;
+    this.mouseY = 0;
+    this.prevMouseX = 0;
+    this.prevMouseY = 0;
+    this.velX = 0;
+    this.velY = 0;
+    this.rotation = Math.random() * 20 - 10;
+    this.currentPaperX = 0;
+    this.currentPaperY = 0;
+    this.rotating = false;
+    this.paperEl = null;
+  }
 
-// Drag elements
-const dragArea = document.getElementById("dragArea");
-const contentBox = document.getElementById("contentBox");
+  init(paper) {
+    this.paperEl = paper;
+    const startX = (Math.random() - 0.5) * 640;
+    const startY = (Math.random() - 0.5) * 360;
+    this.currentPaperX = startX;
+    this.currentPaperY = startY;
+    paper.style.transform = `translateX(${this.currentPaperX}px) translateY(${this.currentPaperY}px) rotateZ(${this.rotation}deg)`;
 
-// Drag state
-let startY = 0;
-let currentY = 0;
-let maxScroll = 0;
-let isDragging = false;
+    document.addEventListener('mousemove', (e) => {
+      if (!this.rotating) {
+        this.mouseX = e.clientX;
+        this.mouseY = e.clientY;
+        this.velX = this.mouseX - this.prevMouseX;
+        this.velY = this.mouseY - this.prevMouseY;
+      }
 
-// SHOW PAGE
-function show(page) {
-    startPage.classList.add("hidden");
-    photosPage.classList.add("hidden");
-    finalPage.classList.add("hidden");
-    page.classList.remove("hidden");
+      const dirX = e.clientX - this.mouseTouchX;
+      const dirY = e.clientY - this.mouseTouchY;
+      const dirLength = Math.sqrt(dirX*dirX + dirY*dirY) || 1;
+      const angle = Math.atan2(dirY/dirLength, dirX/dirLength);
+      let degrees = 180 * angle / Math.PI;
+      degrees = (360 + Math.round(degrees)) % 360;
+      if (this.rotating) this.rotation = degrees;
+
+      if (this.holdingPaper) {
+        if (!this.rotating) {
+          this.currentPaperX += this.velX;
+          this.currentPaperY += this.velY;
+        }
+        this.prevMouseX = this.mouseX;
+        this.prevMouseY = this.mouseY;
+        paper.style.transform = `translateX(${this.currentPaperX}px) translateY(${this.currentPaperY}px) rotateZ(${this.rotation}deg)`;
+      }
+    });
+
+    paper.addEventListener('mousedown', (e) => {
+      if (this.holdingPaper) return;
+      this.holdingPaper = true;
+      paper.style.zIndex = highestZ++;
+      if (e.button === 0) {
+        this.mouseTouchX = this.mouseX;
+        this.mouseTouchY = this.mouseY;
+        this.prevMouseX = this.mouseX;
+        this.prevMouseY = this.mouseY;
+      }
+      if (e.button === 2) this.rotating = true;
+      paper.style.cursor = 'grabbing';
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (this.holdingPaper) {
+        this.holdingPaper = false;
+        this.rotating = false;
+        paper.style.cursor = 'grab';
+        this.currentPaperX += this.velX * 2;
+        this.currentPaperY += this.velY * 2;
+        paper.style.transform = `translateX(${this.currentPaperX}px) translateY(${this.currentPaperY}px) rotateZ(${this.rotation}deg)`;
+      }
+    });
+
+    paper.addEventListener('contextmenu', (ev) => ev.preventDefault());
+  }
 }
 
-// Start page → Photos page
-startBtn.onclick = () => {
-    show(photosPage);
-    setTimeout(calcHeight, 150);
-};
-
-// Restart
-restartBtn.onclick = () => {
-    currentY = 0;
-    contentBox.style.transform = "translateY(0px)";
-    nextBtn.classList.add("hidden");
-    show(startPage);
-};
-
-// Calculate scroll height
-function calcHeight() {
-    maxScroll = contentBox.scrollHeight - dragArea.clientHeight;
-}
-
-// Touch start
-dragArea.addEventListener("touchstart", e => {
-    isDragging = true;
-    startY = e.touches[0].clientY;
+document.addEventListener('DOMContentLoaded', () => {
+  // only initialize draggable behavior for the actual photo cards
+  const papers = Array.from(document.querySelectorAll('.paper.glass.image, .paper.image'));
+  papers.forEach(p => {
+    const instance = new Paper();
+    instance.init(p);
+  });
 });
-
-// Mouse start
-dragArea.addEventListener("mousedown", e => {
-    isDragging = true;
-    startY = e.clientY;
-});
-
-// Move handler
-function handleMove(y) {
-    if (!isDragging) return;
-
-    let diff = y - startY;
-    let newY = currentY + diff;
-
-    if (newY > 0) newY = 0;
-    if (Math.abs(newY) > maxScroll) newY = -maxScroll;
-
-    contentBox.style.transform = `translateY(${newY}px)`;
-
-    if (Math.abs(newY) >= maxScroll - 5) {
-        nextBtn.classList.remove("hidden");
-    }
-}
-
-// Touch move
-dragArea.addEventListener("touchmove", e => {
-    handleMove(e.touches[0].clientY);
-});
-
-// Mouse move
-window.addEventListener("mousemove", e => {
-    if (isDragging) handleMove(e.clientY);
-});
-
-// Drag end
-window.addEventListener("mouseup", () => {
-    isDragging = false;
-    currentY = parseInt(contentBox.style.transform.replace("translateY(",""));
-});
-
-dragArea.addEventListener("touchend", () => {
-    isDragging = false;
-    currentY = parseInt(contentBox.style.transform.replace("translateY(",""));
-});
-
-// Next → Surprise page
-nextBtn.onclick = () => show(finalPage);
-
-// Initial start page
-window.onload = () => show(startPage);
