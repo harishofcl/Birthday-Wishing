@@ -97,7 +97,7 @@ Every part of you feels like poetry written just for me. Wishing a magical birth
 
     const pages = [
       { type:'intro', bg: '', title: 'For You, My girl', text: loveMessage },
-      { type:'text2', bg: '', title: 'A Wish for You', text: secondMessage },
+      { type:'text2', bg2: '', title: 'A Wish for You', text: secondMessage },
       { type:'final', title: 'Happy Birthday!  Rajashree', text: finalText }
     ];
     pages.push(...imagePages);
