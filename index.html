@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Birthday Surprise — Glass Cards</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Short+Stack&family=Inter:wght@300;600;800&display=swap">
+</head>
+<body>
+  <!-- Side decorative notes -->
+  <div class="side-note left-note">
+    <div class="note-inner">
+      <h4>Little Things</h4>
+      <p>Laughs, late-night talks, silly selfies.</p>
+    </div>
+  </div>
+
+  <div class="side-note right-note">
+    <div class="note-inner">
+      <h4>A Beautiful gurl</h4>
+      <p>Your smile, your courage, your kind heart.</p>
+    </div>
+  </div>
+
+  <!-- decorative heart (non-draggable) -->
+  <div class="heart decorative-heart" aria-hidden="true"></div>
+
+  <!-- GLASS STYLE PHOTO CARDS (drag these) -->
+  <!-- Make sure your images are present in an `images/` folder or update the src paths -->
+  <div class="paper glass image" id="mem1">
+    <div class="glass-photo">
+      <img src="img1.jpeg" alt="img1">
+      <div class="glass-caption">
+        <div class="cap-title">Happy Birthday</div>
+        <div class="cap-sub">Loves and cares for you</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="paper glass image" id="mem2">
+    <div class="glass-photo">
+      <img src="img2.jpeg" alt="img2">
+      <div class="glass-caption">
+        <div class="cap-title">Beach Day</div>
+        <div class="cap-sub">That sunny day we laughed so much!</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="paper glass image" id="mem3">
+    <div class="glass-photo">
+      <img src="img3.jpeg" alt="img3">
+      <div class="glass-caption">
+        <div class="cap-title">Sweet Moment</div>
+        <div class="cap-sub">How can someone be this cute?</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="paper glass image" id="mem4">
+    <div class="glass-photo">
+      <img src="img4.jpeg" alt="img4">
+      <div class="glass-caption">
+        <div class="cap-title">Memory 4</div>
+        <div class="cap-sub">Precious moments</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="paper glass image" id="mem5">
+    <div class="glass-photo">
+      <img src="img5.jpeg" alt="img5">
+      <div class="glass-caption">
+        <div class="cap-title">Memory 5</div>
+        <div class="cap-sub">Warmth & smiles</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="paper glass image" id="mem6">
+    <div class="glass-photo">
+      <img src="img6.jpeg" alt="img6">
+      <div class="glass-caption">
+        <div class="cap-title">Memory 6</div>
+        <div class="cap-sub">Forever moments</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- drop zone target -->
+  <div class="memory-callout" aria-hidden="true">
+    <p><strong>Goal:</strong> grab any memory card and drag it into the glowing Memory Box on the right until it disappears.</p>
+  </div>
+
+  <div class="memory-box pulsing" aria-label="Memory box drop area">
+    <div class="memory-box-cues" aria-hidden="true">
+      <span>💌</span>
+      <span>✨</span>
+      <span>💘</span>
+    </div>
+    <div class="memory-box-inner">
+      <h3>Memory Box</h3>
+      <p>Drag and drop each photo into this box to unlock the surprise.</p>
+      <span class="memory-box-hint">Drop here</span>
+      <div class="memory-box-feed" aria-live="polite">
+        <p class="placeholder">No memories collected yet.</p>
+      </div>
+    </div>
+    <span class="memory-box-arrow" aria-hidden="true">← Drag photos this way</span>
+  </div>
+
+  <!-- small guidance (non-draggable) -->
+  <div class="guide paper-guide">
+    <p>Drag each card into the Memory Box — collect all to view the surprise</p>
+    <div class="collected-count" aria-hidden="true"></div>
+  </div>
+
+  <!-- initial start overlay is injected by enhance.js (keeps HTML clean) -->
+
+  <!-- include scripts -->
+  <script src="script.js" defer></script>
+  <script src="mobile.js" defer></script>
+  <script src="enhance.js" defer></script>
+</body>
+</html>
