@@ -1,3 +1,46 @@
+/* ===== Hide modal & controls until explicitly opened =====
+   Put this at the very top of styles.css so it takes effect immediately.
+*/
+.modal-slideshow {
+  display: none;            /* hidden by default */
+  position: fixed;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  z-index: 12000;
+  background: rgba(0,0,0,0.0); /* keep transparent until .open sets the overlay */
+}
+
+.modal-slideshow.open {
+  display: flex;            /* shown when JS adds .open */
+  background: linear-gradient(180deg, rgba(2,4,10,0.85), rgba(2,6,20,0.95));
+}
+
+/* hide the control row until modal is open (prevents stray controls) */
+.modal-slideshow .controls-row {
+  display: none;
+}
+.modal-slideshow.open .controls-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+/* also hide collect overlay until opened */
+.collect-overlay { display: none; }
+.collect-overlay.open { display: flex; align-items:center; justify-content:center; }
+
+/* defensive: hide any immediate child controls that might render before styles load */
+#\\__prevPage, #\\__nextPage, #\\__closeFlow, #\\__viewSurpriseBtn {
+  visibility: hidden;
+}
+.modal-slideshow.open #\\__prevPage,
+.modal-slideshow.open #\\__nextPage,
+.modal-slideshow.open #\\__closeFlow,
+.collect-overlay.open #\\__viewSurpriseBtn {
+  visibility: visible;
+}
 /* ====== Intro overlay + helpers (paste at top of styles.css) ====== */
 
 /* ensures any elements JS marks `.hidden` are actually hidden */

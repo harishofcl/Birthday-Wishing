@@ -1,7 +1,11 @@
-// enhance.js — collect-by-drop logic, zoom hint, and final flow
+// enhance.js — combined robust version
+// Replace your existing enhance.js with this entire file.
+
 document.addEventListener('DOMContentLoaded', () => {
 
-  /* --- Create modal skeleton and collect overlay (unchanged structure) --- */
+  /* --------------------------
+     Modal + Collect overlay
+     -------------------------- */
   const modal = document.createElement('div');
   modal.className = 'modal-slideshow';
   modal.innerHTML = `
@@ -33,33 +37,14 @@ document.addEventListener('DOMContentLoaded', () => {
   `;
   document.body.appendChild(collectOverlay);
 
-  const viewSurpriseBtn = document.getElementById('__viewSurpriseBtn');
+  /* Safety: if control nodes inside modal are needed later, we will re-query them when modal opens */
   const pageStage = document.getElementById('__pageStage');
   const progressBar = document.querySelector('#__progress > i');
   const dotsRow = document.getElementById('__dots');
-  const prevPageBtn = document.getElementById('__prevPage');
-  const nextPageBtn = document.getElementById('__nextPage');
-  const closeFlowBtn = document.getElementById('__closeFlow');
 
-  /* --- create a small dropbox in the paper-guide area (or reuse existing element) --- */
-  function ensureDropbox(){
-    // find guide container
-    let guide = document.querySelector('.paper-guide');
-    if (!guide) {
-      guide = document.createElement('div');
-      guide.className = 'paper-guide';
-      document.body.appendChild(guide);
-    }
-    // add guide text + dropbox
-    guide.innerHTML = `
-      <div class="guide-text">Drag each card up and <strong>drop here</strong></div>
-      <div class="dropbox" id="__dropbox">DROP HERE</div>
-    `;
-    return document.getElementById('__dropbox');
-  }
-  const dropbox = ensureDropbox();
-
-  /* Utility: read .paper.image nodes (use caption structure) */
+  /* --------------------------
+     Utility: collect image nodes
+     -------------------------- */
   function collectImageNodes(){
     const nodes = Array.from(document.querySelectorAll('.paper.image'));
     return nodes.map((node, idx) => {
@@ -75,7 +60,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* Typewriter */
+  /* --------------------------
+     Typewriter helper
+     -------------------------- */
   function typeText(el, text, speed=28){
     return new Promise(resolve=>{
       el.textContent = '';
@@ -91,7 +78,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* Build pages data & DOM (same as before) */
+  /* --------------------------
+     Build pages data & DOM
+     -------------------------- */
   function buildPagesData(){
     const loveMessage = `Happy Birthday, gorgeous. I hope your day is filled with smiles… and I hope I’m the reason behind most of them.
 You’re the warmth I crave, the peace I feel, and the love I breathe. Happy Birthday, my everything.
@@ -107,8 +96,8 @@ Every part of you feels like poetry written just for me. Wishing a magical birth
     const imagePages = collectImageNodes().map(it => Object.assign({type:'photo'}, it));
 
     const pages = [
-      { type:'intro', bg: 'bg.jpg', title: 'For You, My girl', text: loveMessage },
-      { type:'text2', bg: 'bg2.jpg', title: 'A Wish for You', text: secondMessage },
+      { type:'intro', bg: '', title: 'For You, My girl', text: loveMessage },
+      { type:'text2', bg: '', title: 'A Wish for You', text: secondMessage },
       { type:'final', title: 'Happy Birthday!  Rajashree', text: finalText }
     ];
     pages.push(...imagePages);
@@ -167,6 +156,7 @@ Every part of you feels like poetry written just for me. Wishing a magical birth
       dotsRow.appendChild(dot);
     });
 
+    // wire inline nexts after DOM built
     setTimeout(()=> {
       const next1 = document.getElementById('__nextFromIntro');
       if (next1) next1.addEventListener('click', ()=> {
@@ -190,7 +180,9 @@ Every part of you feels like poetry written just for me. Wishing a magical birth
     return Array.from(document.querySelectorAll('.page'));
   }
 
-  /* --- Floating thumbs for intro --- */
+  /* --------------------------
+     Floating thumbs (intro)
+     -------------------------- */
   function spawnFloatingThumbs(){
     if (!pages || !pages[0]) return;
     const intro = pages[0];
@@ -213,7 +205,9 @@ Every part of you feels like poetry written just for me. Wishing a magical birth
     }
   }
 
-  /* --- Page flow logic (same) --- */
+  /* --------------------------
+     Page state + navigation
+     -------------------------- */
   let pages = [];
   let current = 0;
 
@@ -222,24 +216,25 @@ Every part of you feels like poetry written just for me. Wishing a magical birth
     pages.forEach((pg, idx) => pg.classList.toggle('active', idx === i));
     Array.from(dotsRow.children).forEach((d, idx) => d.classList.toggle('active', idx === i));
     current = i;
-    progressBar.style.transition = 'none';
-    progressBar.style.width = '0%';
+    if (progressBar) {
+      progressBar.style.transition = 'none';
+      progressBar.style.width = '0%';
+    }
     const page = pages[i];
     if (!page) return;
     const typeEl = page.querySelector('.typewriter');
     if (!typeEl) return;
     const full = typeEl.dataset.full || '';
     typeText(typeEl, full, 26).then(()=> {
-      progressBar.style.transition = `width 900ms linear`;
-      progressBar.style.width = '100%';
+      if (progressBar) {
+        progressBar.style.transition = `width 900ms linear`;
+        progressBar.style.width = '100%';
+      }
       if (i === 0) spawnFloatingThumbs();
     });
   }
 
   function goToPage(i){ setActivePage(i); }
-  prevPageBtn.addEventListener('click', ()=> { if (current > 0) goToPage(current - 1); });
-  nextPageBtn.addEventListener('click', ()=> { if (current < pages.length - 1) goToPage(current + 1); else finalCelebrate(); });
-  closeFlowBtn.addEventListener('click', closeSlideshow);
 
   function finalCelebrate(){ burstConfetti(); }
   function burstConfetti(){
@@ -256,86 +251,157 @@ Every part of you feels like poetry written just for me. Wishing a magical birth
     setTimeout(()=> confRoot.remove(), 3500);
   }
 
-  /* --- open/close helpers for slideshow --- */
+  /* --------------------------
+     Open slideshow flow (robust wiring)
+     -------------------------- */
   function openSlideshowFlow(){
     pages = buildPagesDOM();
-    document.querySelectorAll('body > *').forEach(el => { if (el !== modal && el !== collectOverlay) el.classList.add('dimmed'); });
+
+    // dim others visually
+    document.querySelectorAll('body > *').forEach(el => {
+      if (el !== modal && el !== collectOverlay) el.classList.add('dimmed');
+    });
     modal.classList.add('open');
-    setTimeout(()=> setActivePage(0), 140);
+
+    // re-wire controls after DOM ready
+    setTimeout(() => {
+      // re-query modal controls
+      const prev = document.getElementById('__prevPage');
+      const next = document.getElementById('__nextPage');
+      const close = document.getElementById('__closeFlow');
+
+      if (prev) {
+        prev.onclick = () => {
+          if (current > 0) goToPage(current - 1);
+          else console.log('Prev clicked at first page');
+        };
+      }
+      if (next) {
+        next.onclick = () => {
+          if (current < pages.length - 1) goToPage(current + 1);
+          else finalCelebrate();
+        };
+      }
+      if (close) {
+        close.onclick = () => closeSlideshow();
+      }
+
+      if (pages && pages.length) setActivePage(0);
+      else console.warn('openSlideshowFlow: no pages built');
+    }, 120);
   }
+
   function closeSlideshow(){
     modal.classList.remove('open');
-    document.querySelectorAll('.dimmed').forEach(el=> el.classList.remove('dimmed'));
-    pages = buildPagesDOM();
+    document.querySelectorAll('.dimmed').forEach(el => el.classList.remove('dimmed'));
+    pages = buildPagesDOM(); // rebuild for next open
   }
+
   window.__openSurpriseFlow = openSlideshowFlow;
 
-  /* --- NEW DROP-BASED COLLECTION LOGIC --- */
-  let imageNodes = collectImageNodes(); // initial list
+  /* --------------------------
+     Ensure a dropbox exists (small, responsive)
+     -------------------------- */
+  function ensureDropbox(){
+    let guide = document.querySelector('.paper-guide');
+    if (!guide) {
+      guide = document.createElement('div');
+      guide.className = 'paper-guide';
+      document.body.appendChild(guide);
+    }
+    guide.innerHTML = `
+      <div class="guide-text">Drag each card up and <strong>drop here</strong></div>
+      <div class="dropbox" id="__dropbox">DROP HERE</div>
+    `;
+    return document.getElementById('__dropbox');
+  }
+  const dropbox = ensureDropbox();
+
+  /* --------------------------
+     Drop-based collection logic
+     -------------------------- */
+  let imageNodes = collectImageNodes();
   const collected = new Set();
 
-  // helper to mark collected visually and remove element
   function markCollected(node){
     if (!node) return;
     if (node.classList.contains('collected')) return;
     node.classList.add('collected');
-    // animate fade out & scale then remove
     node.style.transition = 'transform 360ms ease, opacity 360ms ease';
     node.style.opacity = '0';
     node.style.transform = 'scale(.86) translateY(-20px)';
     setTimeout(()=> {
       node.style.display = 'none';
       collected.add(node);
-      // update count text
       const guideCountEl = document.querySelector('.paper-guide .guide-text');
       if (guideCountEl) guideCountEl.innerHTML = `Collected ${collected.size} / ${imageNodes.length}`;
-      // if all collected, open overlay
       if (collected.size === imageNodes.length) {
         collectOverlay.classList.add('open');
-        // dim others except overlay
         document.querySelectorAll('body > *').forEach(el => { if (el !== collectOverlay) el.classList.add('dimmed-hide'); });
       }
     }, 380);
   }
 
-  // collision detection helper
   function intersectsRect(a, b){
     return !(b.left > a.right || b.right < a.left || b.top > a.bottom || b.bottom < a.top);
   }
 
-  // global handler used by script.js and mobile.js when a paper is released
-  window.handlePaperDrop = function(paper) {
+  // global handler called by script.js and mobile.js when a paper is released
+  window.handlePaperDrop = function(paper){
     try {
-      // compute bounding rects
       const pRect = paper.getBoundingClientRect();
       const dRect = dropbox.getBoundingClientRect();
       if (intersectsRect(pRect, dRect)) {
-        // animate dropbox flash
         dropbox.classList.add('active');
         setTimeout(()=> dropbox.classList.remove('active'), 420);
-        // mark collected
         markCollected(paper);
+      } else {
+        // not dropped in box — small nudge visual
+        paper.animate([{transform: getComputedStyle(paper).transform}, {transform: getComputedStyle(paper).transform}], {duration:120});
       }
     } catch (err) {
       console.error('handlePaperDrop error', err);
     }
   };
 
-  // when user clicks view surprise: hide overlay and open flow
-  if (viewSurpriseBtn) {
-    viewSurpriseBtn.addEventListener('click', ()=> {
+  /* --------------------------
+     Collect overlay click delegation (robust)
+     -------------------------- */
+  collectOverlay.addEventListener('click', function (ev) {
+    const target = ev.target;
+    if (target && (target.id === '__viewSurpriseBtn' || (target.closest && target.closest('#__viewSurpriseBtn')))) {
+      ev.preventDefault();
+      console.log('collectOverlay: view surprise click');
       collectOverlay.classList.remove('open');
-      document.querySelectorAll('.dimmed').forEach(el=> el.classList.remove('dimmed'));
+      document.querySelectorAll('.dimmed').forEach(el => el.classList.remove('dimmed'));
+      document.querySelectorAll('.dimmed-hide').forEach(el => el.classList.remove('dimmed-hide'));
       openSlideshowFlow();
-    });
-  }
+    }
+  });
 
-  /* --- INTRO overlay with Zoom alert & start button --- */
+  function attachViewButtonIfPresent(){
+    const btn = collectOverlay.querySelector('#__viewSurpriseBtn');
+    if (btn && !btn.__attached) {
+      btn.__attached = true;
+      btn.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        collectOverlay.classList.remove('open');
+        document.querySelectorAll('.dimmed').forEach(el => el.classList.remove('dimmed'));
+        document.querySelectorAll('.dimmed-hide').forEach(el => el.classList.remove('dimmed-hide'));
+        openSlideshowFlow();
+      });
+    }
+  }
+  attachViewButtonIfPresent();
+
+  /* --------------------------
+     Intro overlay with zoom hint
+     -------------------------- */
   const intro = document.createElement('div'); intro.className='intro-overlay';
   intro.innerHTML = `
     <div class="card">
       <h1> Surprise! 🎁 </h1>
-      <p>For best mobile view: please pinch to *zoom out* slightly so cards fit better. Then tap <strong>I'm ready</strong>.</p>
+      <p>For best mobile view: pinch to slightly zoom out (if needed), then tap <strong>I'm ready</strong>. Or tap Start anyway.</p>
       <div style="display:flex;gap:10px;justify-content:center;margin-top:14px">
         <button class="page-nav primary" id="__zoomOk">I'm ready</button>
         <button class="page-nav ghost" id="__startAnyway">Start anyway</button>
@@ -347,24 +413,19 @@ Every part of you feels like poetry written just for me. Wishing a magical birth
   const startAnywayBtn = document.getElementById('__startAnyway');
 
   function removeIntroAndShowHint(){
-    // remove underlying ghosting by not dimming content but removing overlay
     intro.style.opacity='0';
     intro.style.transform='scale(.98)';
     setTimeout(()=> intro.remove(), 380);
-    // small drag hint
     const hint = document.createElement('div'); hint.className='drag-hint'; hint.textContent='Tip: Drag any card UP and drop into the box';
     document.body.appendChild(hint);
     setTimeout(()=> hint.remove(), 7000);
-    // reveal dropbox guide text initial state
     const g = document.querySelector('.paper-guide .guide-text');
     if (g) g.innerHTML = `Drag each card up and <strong>drop here</strong>`;
-    // Show underlying papers now (just in case they were hidden)
     document.querySelectorAll('.paper').forEach(p => p.classList.remove('hidden'));
   }
 
   if (zoomOkBtn) {
     zoomOkBtn.addEventListener('click', ()=> {
-      // user confirmed; remove the body zoom restriction
       document.body.classList.add('zoom-ok');
       removeIntroAndShowHint();
     });
@@ -376,11 +437,12 @@ Every part of you feels like poetry written just for me. Wishing a magical birth
     });
   }
 
-  // hide underlying content while intro overlay present
+  // hide papers until user confirms
   document.querySelectorAll('.paper').forEach(p => p.classList.add('hidden'));
 
-  /* Make sure dropbox highlights on hover by checking mousemove over dropbox region */
+  // highlight dropbox on mouse move over it
   document.addEventListener('mousemove', (e) => {
+    if (!dropbox) return;
     const rect = dropbox.getBoundingClientRect();
     if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom){
       dropbox.classList.add('active');
@@ -388,5 +450,15 @@ Every part of you feels like poetry written just for me. Wishing a magical birth
       dropbox.classList.remove('active');
     }
   });
+
+  /* --------------------------
+     Defensive: update imageNodes if DOM changes
+     -------------------------- */
+  const observer = new MutationObserver(() => {
+    imageNodes = collectImageNodes();
+  });
+  observer.observe(document.body, {childList:true, subtree:true});
+
+  console.log('enhance.js loaded — modal + dropbox initialized');
 
 });
