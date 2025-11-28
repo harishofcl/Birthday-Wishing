@@ -1,7 +1,5 @@
-// enhance.js — final polished version
-// Preserves your beautiful UI (theme/responsiveness) and fixes the "visit surprise" flow.
-// Drop detection is robust (bounding rect + elementFromPoint fallbacks).
-// Slideshow: intro (bg), text2 (bg2), final wish, then photo pages. Typewriter + progress + dots + prev/next/close.
+// enhance.js — adjusted: removed the second (bg) text card so there is only ONE intro/text card
+// Preserves UI, dropbox, slideshow, and fixes mobile NEXT behavior.
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -86,13 +84,9 @@ document.addEventListener('DOMContentLoaded', () => {
      Build pages data & DOM
      -------------------------- */
   function buildPagesData(){
-    // Keep these messages editable — maintain the romantic tone you had.
+    // Your main intro text (kept romantic tone)
     const loveMessage = `Happy Birthday, gorgeous. I hope your day is filled with smiles… and I hope I’m the reason behind most of them.
 You’re the warmth I crave, the peace I feel, and the love I breathe. Happy Birthday, my everything.
-
-Every part of you feels like poetry written just for me. Wishing a magical birthday to the one my soul adores.`;
-
-    const secondMessage = `You’re the warmth I crave, the peace I feel, and the love I breathe. Happy Birthday, my everything.
 
 Every part of you feels like poetry written just for me. Wishing a magical birthday to the one my soul adores.`;
 
@@ -100,10 +94,9 @@ Every part of you feels like poetry written just for me. Wishing a magical birth
 
     const imagePages = collectImageNodes().map(it => Object.assign({type:'photo'}, it));
 
-    // Use bg.jpg and bg2.jpg if present — keep empty fallback
+    // NOTE: removed the second text/bg page — only one intro + final + photos
     const pages = [
       { type:'intro', bg: 'bg.jpg', title: 'For You, My girl', text: loveMessage },
-      { type:'text2', bg: 'bg2.jpg', title: 'A Wish for You', text: secondMessage },
       { type:'final', title: 'Happy Birthday!  Rajashree', text: finalText }
     ];
     pages.push(...imagePages);
@@ -126,17 +119,6 @@ Every part of you feels like poetry written just for me. Wishing a magical birth
             <div style="margin-top:18px"><button class="page-nav primary" id="__nextFromIntro">Next</button></div>
           </div>
           <div class="floating-thumbs" aria-hidden="true"></div>
-        `;
-      } else if (p.type === 'text2') {
-        // Second text page with bg2
-        page.classList.add('text-bg');
-        if (p.bg) page.style.backgroundImage = `url('${p.bg}')`;
-        page.innerHTML = `
-          <div class="text-wrap">
-            <h3 class="text-title">${p.title}</h3>
-            <div class="text-desc typewriter" data-full="${p.text.replace(/\n/g,'\\n')}"></div>
-            <div style="margin-top:18px"><button class="page-nav primary" id="__nextFromText2">Next</button></div>
-          </div>
         `;
       } else if (p.type === 'final') {
         page.innerHTML = `
@@ -165,19 +147,12 @@ Every part of you feels like poetry written just for me. Wishing a magical birth
       dotsRow.appendChild(dot);
     });
 
-    // wire inline Next buttons after DOM built
+    // wire inline Next button from intro (no second text page anymore)
     setTimeout(()=> {
       const next1 = qs('__nextFromIntro');
       if (next1) next1.addEventListener('click', ()=> {
         const pagesArr = Array.from(document.querySelectorAll('.page'));
         const idx = pagesArr.indexOf(document.querySelector('.page.intro-text-page'));
-        if (idx >= 0) goToPage(idx + 1);
-      });
-      const next2 = qs('__nextFromText2');
-      if (next2) next2.addEventListener('click', ()=> {
-        const pagesArr = Array.from(document.querySelectorAll('.page'));
-        const t2 = document.querySelector('.page.text-bg');
-        const idx = pagesArr.indexOf(t2);
         if (idx >= 0) goToPage(idx + 1);
       });
       const celebrateBtn = qs('__celebrateBtn');
