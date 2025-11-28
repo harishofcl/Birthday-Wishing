@@ -1,74 +1,60 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Birthday Surprise — Glass Cards</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birthday Surprise</title>
 
-  <!-- Replace style.css with the provided file -->
-  <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css">
 
-  <!-- Optional: favicon -->
-  <link rel="icon" href="favicon.ico" />
+    <script src="script.js" defer></script>
+    <script src="mobile.js" defer></script>
+    <script src="enhance.js" defer></script>
 </head>
+
 <body>
 
-  <!-- START SCREEN -->
-  <section id="startScreen" class="full-screen center">
-    <div class="start-card glass-card">
-      <div class="brand">
-        <div class="logo">B</div>
-        <h1>Birthday Surprise</h1>
-      </div>
-      <p class="small">Tap Start to open the memory box</p>
-      <div class="spacer"></div>
-      <button id="startBtn" class="btn">Start</button>
-    </div>
-  </section>
-
-  <!-- PHOTO FRAME -->
-  <section id="photoFrame" class="full-screen center hidden">
-    <div class="frame-card glass-card">
-      <div class="frame-header">
-        <h2>Memory Box</h2>
-        <p class="small">Drag / Swipe up inside the box to reveal memories</p>
-      </div>
-
-      <div id="dragArea" class="drag-area" aria-label="Photos scroll area">
-        <div id="photosStack" class="photos-stack">
-          <!-- Put or replace your images here -->
-          <div class="photo-item"><img src="images/photo1.jpg" alt="memory 1"></div>
-          <div class="photo-item"><img src="images/photo2.jpg" alt="memory 2"></div>
-          <div class="photo-item"><img src="images/photo3.jpg" alt="memory 3"></div>
-          <div class="photo-item"><img src="images/photo4.jpg" alt="memory 4"></div>
-          <div class="photo-item"><img src="images/photo5.jpg" alt="memory 5"></div>
+    <!-- START PAGE -->
+    <section id="startPage" class="screen">
+        <div class="box">
+            <h1>Birthday Surprise 🎉</h1>
+            <p class="subtitle">Tap Start to open the memories</p>
+            <button id="startBtn" class="btn">Start</button>
         </div>
-      </div>
+    </section>
 
-      <div class="frame-actions">
-        <button id="revealBtn" class="btn-ghost">Reveal Bottom</button>
-        <button id="nextBtn" class="next-btn hidden">Surprise!</button>
-      </div>
-    </div>
-  </section>
+    <!-- PHOTOS PAGE -->
+    <section id="photosPage" class="screen hidden">
+        <div class="box">
+            <h2>Memory Box</h2>
+            <p class="subtitle">Drag / Swipe up inside the box</p>
 
-  <!-- SURPRISE PAGE -->
-  <section id="surprisePage" class="full-screen center hidden">
-    <div class="modal-card">
-      <h2>Surprise! 🎉</h2>
-      <p class="small">Here is your special message. You can customize this text.</p>
-      <div class="surprise-content">
-        <p style="margin-top:12px">Happy Birthday! Wishing you joy, love and many more memories.</p>
-      </div>
-      <div style="margin-top:18px;">
-        <button id="restartBtn" class="btn">Restart</button>
-      </div>
-    </div>
-  </section>
+            <div id="dragArea" class="drag-area">
+                <div id="contentBox" class="content-box">
 
-  <!-- Scripts -->
-  <script src="script.js" defer></script>
-  <script src="mobile.js" defer></script>
-  <script src="enhance.js" defer></script>
+                    <!-- YOUR PHOTOS -->
+                    <img src="img1.jpeg">
+                    <img src="img2.jpeg">
+                    <img src="img3.jpeg">
+                    <img src="img4.jpeg">
+                    <img src="img5.jpeg">
+                    <img src="img6.jpeg">
+
+                </div>
+            </div>
+
+            <button id="nextBtn" class="btn hidden">Next</button>
+        </div>
+    </section>
+
+    <!-- FINAL SURPRISE PAGE -->
+    <section id="finalPage" class="screen hidden">
+        <div class="box">
+            <h2>Your Surprise ❤️</h2>
+            <p class="subtitle">Happy Birthday to the most special person!</p>
+            <button id="restartBtn" class="btn">Start Again</button>
+        </div>
+    </section>
+
 </body>
 </html>

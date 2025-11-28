@@ -1,155 +1,102 @@
-/* MAIN FLOW + DRAG LOGIC
-   script.js
-*/
-(function () {
-  // elements
-  const startScreen = document.getElementById('startScreen');
-  const photoFrame = document.getElementById('photoFrame');
-  const surprisePage = document.getElementById('surprisePage');
-  const startBtn = document.getElementById('startBtn');
-  const photosStack = document.getElementById('photosStack');
-  const dragArea = document.getElementById('dragArea');
-  const revealBtn = document.getElementById('revealBtn');
-  const nextBtn = document.getElementById('nextBtn');
-  const restartBtn = document.getElementById('restartBtn');
+// Pages
+const startPage = document.getElementById("startPage");
+const photosPage = document.getElementById("photosPage");
+const finalPage = document.getElementById("finalPage");
 
-  // state
-  let isDragging = false;
-  let startY = 0;
-  let currentY = 0;   // translateY in px (0 .. -maxUp)
-  let maxUp = 0;      // positive number of how many px can we move up (stackHeight - frameHeight)
-  let frameHeight = 0;
-  let stackHeight = 0;
+// Buttons
+const startBtn = document.getElementById("startBtn");
+const nextBtn = document.getElementById("nextBtn");
+const restartBtn = document.getElementById("restartBtn");
 
-  // helpers to show/hide sections
-  function showSection(section) {
-    [startScreen, photoFrame, surprisePage].forEach(s => s.classList.add('hidden'));
-    section.classList.remove('hidden');
-  }
+// Drag elements
+const dragArea = document.getElementById("dragArea");
+const contentBox = document.getElementById("contentBox");
 
-  // recalc heights and clamp
-  function recalcHeights() {
-    frameHeight = dragArea.clientHeight;
-    stackHeight = photosStack.scrollHeight;
-    maxUp = Math.max(0, stackHeight - frameHeight);
-    currentY = Math.max(-maxUp, Math.min(0, currentY));
-    photosStack.style.transform = `translateY(${currentY}px)`;
-    updateNextVisibility();
-  }
+// Drag state
+let startY = 0;
+let currentY = 0;
+let maxScroll = 0;
+let isDragging = false;
 
-  function updateNextVisibility() {
-    if (maxUp === 0) {
-      nextBtn.classList.remove('hidden'); // no scrolling needed -> show next
-      return;
-    }
-    if (Math.abs(currentY) >= (maxUp - 18)) {
-      nextBtn.classList.remove('hidden');
-    } else {
-      nextBtn.classList.add('hidden');
-    }
-  }
+// SHOW PAGE
+function show(page) {
+    startPage.classList.add("hidden");
+    photosPage.classList.add("hidden");
+    finalPage.classList.add("hidden");
+    page.classList.remove("hidden");
+}
 
-  // start flow
-  startBtn.addEventListener('click', () => {
-    showSection(photoFrame);
-    setTimeout(recalcHeights, 60);
-  });
+// Start page → Photos page
+startBtn.onclick = () => {
+    show(photosPage);
+    setTimeout(calcHeight, 150);
+};
 
-  // restart
-  if (restartBtn) {
-    restartBtn.addEventListener('click', () => {
-      currentY = 0;
-      photosStack.style.transform = `translateY(0px)`;
-      nextBtn.classList.add('hidden');
-      showSection(startScreen);
-    });
-  }
+// Restart
+restartBtn.onclick = () => {
+    currentY = 0;
+    contentBox.style.transform = "translateY(0px)";
+    nextBtn.classList.add("hidden");
+    show(startPage);
+};
 
-  // reveal button: jump to bottom
-  revealBtn.addEventListener('click', () => {
-    currentY = -maxUp;
-    photosStack.style.transition = 'transform 360ms cubic-bezier(.2,.9,.2,1)';
-    photosStack.style.transform = `translateY(${currentY}px)`;
-    setTimeout(updateNextVisibility, 380);
-  });
+// Calculate scroll height
+function calcHeight() {
+    maxScroll = contentBox.scrollHeight - dragArea.clientHeight;
+}
 
-  // next button -> surprise
-  nextBtn.addEventListener('click', () => {
-    showSection(surprisePage);
-  });
-
-  /* DRAG/GESTURE LOGIC (touch + mouse)
-     We implement clamped dragging with light resistance beyond bounds.
-  */
-  function onDragStart(clientY) {
+// Touch start
+dragArea.addEventListener("touchstart", e => {
     isDragging = true;
-    startY = clientY;
-    photosStack.style.transition = 'none';
-  }
+    startY = e.touches[0].clientY;
+});
 
-  function onDragMove(clientY) {
-    if (!isDragging) return;
-    let delta = clientY - startY;
-    let candidate = currentY + delta;
-    // resistance beyond edges
-    const res = 0.35;
-    if (candidate > 40) candidate = 40 + (candidate - 40) * res;
-    if (candidate < -maxUp - 40) candidate = -maxUp - 40 + (candidate + maxUp + 40) * res;
-    photosStack.style.transform = `translateY(${candidate}px)`;
-  }
+// Mouse start
+dragArea.addEventListener("mousedown", e => {
+    isDragging = true;
+    startY = e.clientY;
+});
 
-  function onDragEnd(clientY) {
+// Move handler
+function handleMove(y) {
     if (!isDragging) return;
-    let delta = clientY - startY;
-    currentY = currentY + delta;
-    currentY = Math.max(-maxUp, Math.min(0, currentY));
-    photosStack.style.transition = 'transform 260ms cubic-bezier(.2,.9,.2,1)';
-    photosStack.style.transform = `translateY(${currentY}px)`;
+
+    let diff = y - startY;
+    let newY = currentY + diff;
+
+    if (newY > 0) newY = 0;
+    if (Math.abs(newY) > maxScroll) newY = -maxScroll;
+
+    contentBox.style.transform = `translateY(${newY}px)`;
+
+    if (Math.abs(newY) >= maxScroll - 5) {
+        nextBtn.classList.remove("hidden");
+    }
+}
+
+// Touch move
+dragArea.addEventListener("touchmove", e => {
+    handleMove(e.touches[0].clientY);
+});
+
+// Mouse move
+window.addEventListener("mousemove", e => {
+    if (isDragging) handleMove(e.clientY);
+});
+
+// Drag end
+window.addEventListener("mouseup", () => {
     isDragging = false;
-    updateNextVisibility();
-  }
+    currentY = parseInt(contentBox.style.transform.replace("translateY(",""));
+});
 
-  // touch events
-  dragArea.addEventListener('touchstart', e => {
-    recalcHeights();
-    onDragStart(e.touches[0].clientY);
-  }, { passive: true });
+dragArea.addEventListener("touchend", () => {
+    isDragging = false;
+    currentY = parseInt(contentBox.style.transform.replace("translateY(",""));
+});
 
-  dragArea.addEventListener('touchmove', e => {
-    onDragMove(e.touches[0].clientY);
-    // prevent default scrolling only when dragging vertically inside dragArea
-    e.preventDefault();
-  }, { passive: false });
+// Next → Surprise page
+nextBtn.onclick = () => show(finalPage);
 
-  dragArea.addEventListener('touchend', e => {
-    onDragEnd((e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientY : startY);
-  });
-
-  // mouse events (desktop)
-  let mouseDown = false;
-  dragArea.addEventListener('mousedown', e => {
-    mouseDown = true;
-    recalcHeights();
-    onDragStart(e.clientY);
-  });
-
-  window.addEventListener('mousemove', e => {
-    if (!mouseDown) return;
-    onDragMove(e.clientY);
-  });
-
-  window.addEventListener('mouseup', e => {
-    if (!mouseDown) return;
-    mouseDown = false;
-    onDragEnd(e.clientY);
-  });
-
-  // recompute when window resizes or images load
-  window.addEventListener('resize', recalcHeights);
-  window.addEventListener('load', () => {
-    // ensure any images have time to lay out
-    setTimeout(recalcHeights, 120);
-    showSection(startScreen);
-  });
-
-})();
+// Initial start page
+window.onload = () => show(startPage);
