@@ -1,214 +1,155 @@
-/* ================================
-   FULL RESPONSIVE CSS – BIRTHDAY WISHING
-   Replace your entire style.css with this file
-   ================================ */
+/* MAIN FLOW + DRAG LOGIC
+   script.js
+*/
+(function () {
+  // elements
+  const startScreen = document.getElementById('startScreen');
+  const photoFrame = document.getElementById('photoFrame');
+  const surprisePage = document.getElementById('surprisePage');
+  const startBtn = document.getElementById('startBtn');
+  const photosStack = document.getElementById('photosStack');
+  const dragArea = document.getElementById('dragArea');
+  const revealBtn = document.getElementById('revealBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const restartBtn = document.getElementById('restartBtn');
 
-/* GLOBAL SETUP */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+  // state
+  let isDragging = false;
+  let startY = 0;
+  let currentY = 0;   // translateY in px (0 .. -maxUp)
+  let maxUp = 0;      // positive number of how many px can we move up (stackHeight - frameHeight)
+  let frameHeight = 0;
+  let stackHeight = 0;
 
-html, body {
-  width: 100%;
-  min-height: 100vh;
-  overflow-x: hidden;
-  background: linear-gradient(135deg, #081129, #0c1b3c);
-  font-family: "Poppins", sans-serif;
-  color: white;
-}
-
-body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-bottom: 40px;
-}
-
-h1, h2, h3 {
-  text-align: center;
-}
-
-/* MAIN CONTAINER */
-.container {
-  width: 100%;
-  max-width: 1100px;
-  padding: 20px;
-  margin: 0 auto;
-}
-
-/* GLASS CARD */
-.glass-card {
-  background: rgba(255,255,255,0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  border: 1px solid rgba(255,255,255,0.2);
-  padding: 20px;
-  margin: 15px 0;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.4);
-  transition: 0.3s ease;
-}
-
-.glass-card:hover {
-  transform: translateY(-3px);
-}
-
-/* CARD GRID (DESKTOP) */
-.cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
-  margin-top: 20px;
-}
-
-/* CARD INNER CONTENT */
-.card-inner {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.card-img {
-  width: 100%;
-  height: 180px;
-  border-radius: 14px;
-  overflow: hidden;
-}
-
-.card-img img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* TEXT */
-p {
-  font-size: 1rem;
-  line-height: 1.5;
-}
-
-/* BUTTONS */
-.btn, button, .next-btn {
-  width: 100%;
-  padding: 14px;
-  background: linear-gradient(135deg, #5798ff, #2b6cff);
-  border-radius: 12px;
-  border: none;
-  color: white;
-  font-weight: 600;
-  font-size: 1.1rem;
-  margin-top: 14px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.btn:hover,
-button:hover,
-.next-btn:hover {
-  transform: scale(1.03);
-}
-
-/* DRAG & DROP BOX */
-.dropbox {
-  width: 100%;
-  background: rgba(255,255,255,0.08);
-  border: 2px dashed rgba(255,255,255,0.3);
-  border-radius: 16px;
-  padding: 20px;
-  margin-top: 20px;
-  text-align: center;
-  transition: 0.3s;
-}
-
-.dropbox.dragover {
-  background: rgba(111,179,255,0.15);
-  border-color: #6fb3ff;
-}
-
-/* IMAGES INSIDE DROPBOX */
-.drop-preview {
-  margin-top: 12px;
-}
-
-.drop-preview img {
-  width: 100%;
-  max-width: 260px;
-  margin: 8px auto;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-}
-
-/* SURPRISE MESSAGE PAGES */
-.surprise-page {
-  margin-top: 20px;
-  background: rgba(255,255,255,0.12);
-  padding: 20px;
-  border-radius: 15px;
-  text-align: center;
-  display: none;
-}
-
-.surprise-page.active {
-  display: block;
-}
-
-/* MOBILE RESPONSIVENESS */
-@media (max-width: 860px) {
-
-  h1 {
-    font-size: 1.6rem;
+  // helpers to show/hide sections
+  function showSection(section) {
+    [startScreen, photoFrame, surprisePage].forEach(s => s.classList.add('hidden'));
+    section.classList.remove('hidden');
   }
 
-  p {
-    font-size: 1rem;
+  // recalc heights and clamp
+  function recalcHeights() {
+    frameHeight = dragArea.clientHeight;
+    stackHeight = photosStack.scrollHeight;
+    maxUp = Math.max(0, stackHeight - frameHeight);
+    currentY = Math.max(-maxUp, Math.min(0, currentY));
+    photosStack.style.transform = `translateY(${currentY}px)`;
+    updateNextVisibility();
   }
 
-  /* Cards become vertical */
-  .cards {
-    grid-template-columns: 1fr;
+  function updateNextVisibility() {
+    if (maxUp === 0) {
+      nextBtn.classList.remove('hidden'); // no scrolling needed -> show next
+      return;
+    }
+    if (Math.abs(currentY) >= (maxUp - 18)) {
+      nextBtn.classList.remove('hidden');
+    } else {
+      nextBtn.classList.add('hidden');
+    }
   }
 
-  .glass-card {
-    width: 100%;
-    margin: 10px 0;
-    padding: 16px;
+  // start flow
+  startBtn.addEventListener('click', () => {
+    showSection(photoFrame);
+    setTimeout(recalcHeights, 60);
+  });
+
+  // restart
+  if (restartBtn) {
+    restartBtn.addEventListener('click', () => {
+      currentY = 0;
+      photosStack.style.transform = `translateY(0px)`;
+      nextBtn.classList.add('hidden');
+      showSection(startScreen);
+    });
   }
 
-  .card-img {
-    height: 150px;
+  // reveal button: jump to bottom
+  revealBtn.addEventListener('click', () => {
+    currentY = -maxUp;
+    photosStack.style.transition = 'transform 360ms cubic-bezier(.2,.9,.2,1)';
+    photosStack.style.transform = `translateY(${currentY}px)`;
+    setTimeout(updateNextVisibility, 380);
+  });
+
+  // next button -> surprise
+  nextBtn.addEventListener('click', () => {
+    showSection(surprisePage);
+  });
+
+  /* DRAG/GESTURE LOGIC (touch + mouse)
+     We implement clamped dragging with light resistance beyond bounds.
+  */
+  function onDragStart(clientY) {
+    isDragging = true;
+    startY = clientY;
+    photosStack.style.transition = 'none';
   }
 
-  /* Dropbox full width */
-  .dropbox {
-    margin-top: 18px;
-    padding: 18px;
+  function onDragMove(clientY) {
+    if (!isDragging) return;
+    let delta = clientY - startY;
+    let candidate = currentY + delta;
+    // resistance beyond edges
+    const res = 0.35;
+    if (candidate > 40) candidate = 40 + (candidate - 40) * res;
+    if (candidate < -maxUp - 40) candidate = -maxUp - 40 + (candidate + maxUp + 40) * res;
+    photosStack.style.transform = `translateY(${candidate}px)`;
   }
 
-  /* Remove hover transforms */
-  .glass-card:hover {
-    transform: none;
+  function onDragEnd(clientY) {
+    if (!isDragging) return;
+    let delta = clientY - startY;
+    currentY = currentY + delta;
+    currentY = Math.max(-maxUp, Math.min(0, currentY));
+    photosStack.style.transition = 'transform 260ms cubic-bezier(.2,.9,.2,1)';
+    photosStack.style.transform = `translateY(${currentY}px)`;
+    isDragging = false;
+    updateNextVisibility();
   }
 
-  /* Buttons more touch-friendly */
-  .btn, button, .next-btn {
-    font-size: 1rem;
-    padding: 12px;
-  }
+  // touch events
+  dragArea.addEventListener('touchstart', e => {
+    recalcHeights();
+    onDragStart(e.touches[0].clientY);
+  }, { passive: true });
 
-  /* Prevent overflow */
-  * {
-    max-width: 100%;
-  }
-}
+  dragArea.addEventListener('touchmove', e => {
+    onDragMove(e.touches[0].clientY);
+    // prevent default scrolling only when dragging vertically inside dragArea
+    e.preventDefault();
+  }, { passive: false });
 
-/* VERY SMALL DEVICES */
-@media (max-width: 480px) {
-  h1 {
-    font-size: 1.3rem;
-  }
+  dragArea.addEventListener('touchend', e => {
+    onDragEnd((e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientY : startY);
+  });
 
-  p {
-    font-size: 0.95rem;
-  }
-}
+  // mouse events (desktop)
+  let mouseDown = false;
+  dragArea.addEventListener('mousedown', e => {
+    mouseDown = true;
+    recalcHeights();
+    onDragStart(e.clientY);
+  });
+
+  window.addEventListener('mousemove', e => {
+    if (!mouseDown) return;
+    onDragMove(e.clientY);
+  });
+
+  window.addEventListener('mouseup', e => {
+    if (!mouseDown) return;
+    mouseDown = false;
+    onDragEnd(e.clientY);
+  });
+
+  // recompute when window resizes or images load
+  window.addEventListener('resize', recalcHeights);
+  window.addEventListener('load', () => {
+    // ensure any images have time to lay out
+    setTimeout(recalcHeights, 120);
+    showSection(startScreen);
+  });
+
+})();
