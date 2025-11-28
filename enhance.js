@@ -1,7 +1,7 @@
-// enhance.js — require collecting all photos first, then manual multi-text flow with two background text pages and final wish
+// enhance.js — collect-by-drop logic, zoom hint, and final flow
 document.addEventListener('DOMContentLoaded', () => {
 
-  /* Modal skeleton */
+  /* --- Create modal skeleton and collect overlay (unchanged structure) --- */
   const modal = document.createElement('div');
   modal.className = 'modal-slideshow';
   modal.innerHTML = `
@@ -20,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
   `;
   document.body.appendChild(modal);
 
-  /* Collect-overlay (shown once all photos collected) */
   const collectOverlay = document.createElement('div');
   collectOverlay.className = 'collect-overlay';
   collectOverlay.innerHTML = `
@@ -34,16 +33,31 @@ document.addEventListener('DOMContentLoaded', () => {
   `;
   document.body.appendChild(collectOverlay);
 
-  // now get viewSurpriseBtn safely
   const viewSurpriseBtn = document.getElementById('__viewSurpriseBtn');
-
-  /* Page stage elements */
   const pageStage = document.getElementById('__pageStage');
   const progressBar = document.querySelector('#__progress > i');
   const dotsRow = document.getElementById('__dots');
   const prevPageBtn = document.getElementById('__prevPage');
   const nextPageBtn = document.getElementById('__nextPage');
   const closeFlowBtn = document.getElementById('__closeFlow');
+
+  /* --- create a small dropbox in the paper-guide area (or reuse existing element) --- */
+  function ensureDropbox(){
+    // find guide container
+    let guide = document.querySelector('.paper-guide');
+    if (!guide) {
+      guide = document.createElement('div');
+      guide.className = 'paper-guide';
+      document.body.appendChild(guide);
+    }
+    // add guide text + dropbox
+    guide.innerHTML = `
+      <div class="guide-text">Drag each card up and <strong>drop here</strong></div>
+      <div class="dropbox" id="__dropbox">DROP HERE</div>
+    `;
+    return document.getElementById('__dropbox');
+  }
+  const dropbox = ensureDropbox();
 
   /* Utility: read .paper.image nodes (use caption structure) */
   function collectImageNodes(){
@@ -77,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* Build pages data: intro -> text2 -> final -> photo pages */
+  /* Build pages data & DOM (same as before) */
   function buildPagesData(){
     const loveMessage = `Happy Birthday, gorgeous. I hope your day is filled with smiles… and I hope I’m the reason behind most of them.
 You’re the warmth I crave, the peace I feel, and the love I breathe. Happy Birthday, my everything.
@@ -88,7 +102,7 @@ Every part of you feels like poetry written just for me. Wishing a magical birth
 
 Every part of you feels like poetry written just for me. Wishing a magical birthday to the one my soul adores.`;
 
-    const finalText = `Happy Birthday!Wishing you a day as wonderful and radiant as you are. All my love, today and always.`;
+    const finalText = `Happy Birthday! Wishing you a day as wonderful and radiant as you are. All my love, today and always.`;
 
     const imagePages = collectImageNodes().map(it => Object.assign({type:'photo'}, it));
 
@@ -101,7 +115,6 @@ Every part of you feels like poetry written just for me. Wishing a magical birth
     return pages;
   }
 
-  /* Build DOM pages */
   function buildPagesDOM(){
     const data = buildPagesData();
     pageStage.innerHTML = ''; dotsRow.innerHTML = '';
@@ -154,7 +167,6 @@ Every part of you feels like poetry written just for me. Wishing a magical birth
       dotsRow.appendChild(dot);
     });
 
-    // add inline Next buttons after DOM built
     setTimeout(()=> {
       const next1 = document.getElementById('__nextFromIntro');
       if (next1) next1.addEventListener('click', ()=> {
@@ -178,7 +190,7 @@ Every part of you feels like poetry written just for me. Wishing a magical birth
     return Array.from(document.querySelectorAll('.page'));
   }
 
-  /* Floating thumbs for intro */
+  /* --- Floating thumbs for intro --- */
   function spawnFloatingThumbs(){
     if (!pages || !pages[0]) return;
     const intro = pages[0];
@@ -201,7 +213,7 @@ Every part of you feels like poetry written just for me. Wishing a magical birth
     }
   }
 
-  /* Page logic: manual-only (no auto-advance) */
+  /* --- Page flow logic (same) --- */
   let pages = [];
   let current = 0;
 
@@ -210,39 +222,26 @@ Every part of you feels like poetry written just for me. Wishing a magical birth
     pages.forEach((pg, idx) => pg.classList.toggle('active', idx === i));
     Array.from(dotsRow.children).forEach((d, idx) => d.classList.toggle('active', idx === i));
     current = i;
-
-    // reset progress bar
     progressBar.style.transition = 'none';
     progressBar.style.width = '0%';
-
     const page = pages[i];
     if (!page) return;
     const typeEl = page.querySelector('.typewriter');
     if (!typeEl) return;
-
-    // type the text (if any) — for intro and text2 we also spawn thumbs / show Next inline
     const full = typeEl.dataset.full || '';
     typeText(typeEl, full, 26).then(()=> {
       progressBar.style.transition = `width 900ms linear`;
       progressBar.style.width = '100%';
-      // if intro spawn thumbs after typing
       if (i === 0) spawnFloatingThumbs();
     });
   }
 
-  function goToPage(i){
-    setActivePage(i);
-  }
-
+  function goToPage(i){ setActivePage(i); }
   prevPageBtn.addEventListener('click', ()=> { if (current > 0) goToPage(current - 1); });
   nextPageBtn.addEventListener('click', ()=> { if (current < pages.length - 1) goToPage(current + 1); else finalCelebrate(); });
   closeFlowBtn.addEventListener('click', closeSlideshow);
 
-  /* finalCelebrate simply opens a confetti burst and keeps the final page visible */
-  function finalCelebrate(){
-    burstConfetti();
-  }
-
+  function finalCelebrate(){ burstConfetti(); }
   function burstConfetti(){
     const confRoot = document.createElement('div'); confRoot.style.position='fixed'; confRoot.style.inset='0'; confRoot.style.pointerEvents='none'; confRoot.style.zIndex=12000; document.body.appendChild(confRoot);
     const colors = ['#ff7aa2','#ffd47a','#7ae7ff','#b58cff','#8fffb5'];
@@ -257,7 +256,7 @@ Every part of you feels like poetry written just for me. Wishing a magical birth
     setTimeout(()=> confRoot.remove(), 3500);
   }
 
-  /* open/close helpers */
+  /* --- open/close helpers for slideshow --- */
   function openSlideshowFlow(){
     pages = buildPagesDOM();
     document.querySelectorAll('body > *').forEach(el => { if (el !== modal && el !== collectOverlay) el.classList.add('dimmed'); });
@@ -269,59 +268,58 @@ Every part of you feels like poetry written just for me. Wishing a magical birth
     document.querySelectorAll('.dimmed').forEach(el=> el.classList.remove('dimmed'));
     pages = buildPagesDOM();
   }
-
   window.__openSurpriseFlow = openSlideshowFlow;
 
-  /* Detect per-card collection (drag up) and show overlay when all collected */
+  /* --- NEW DROP-BASED COLLECTION LOGIC --- */
   let imageNodes = collectImageNodes(); // initial list
   const collected = new Set();
-  const threshold = -120; // px upward to count as collected
 
-  // mark element visually when collected
+  // helper to mark collected visually and remove element
   function markCollected(node){
-    if (node.querySelector('.collected-badge')) return;
-    const badge = document.createElement('div'); badge.className='collected-badge'; badge.innerText='Collected';
-    node.appendChild(badge);
-    // update guide count
-    const guideCountEl = document.querySelector('.paper-guide .collected-count');
-    if (guideCountEl) guideCountEl.innerText = `${collected.size} / ${imageNodes.length} collected`;
-  }
-
-  function parseTranslateY(transformStr) {
-    if (!transformStr) return 0;
-    const m = transformStr.match(/translateY\((-?\d+\.?\d*)px\)/);
-    if (m) return parseFloat(m[1]);
-    const m2 = transformStr.match(/translate\((-?\d+\.?\d*)px,\s*(-?\d+\.?\d*)px\)/);
-    if (m2) return parseFloat(m2[2]);
-    const mat = transformStr.match(/matrix\(([^)]+)\)/);
-    if (mat) {
-      const parts = mat[1].split(',').map(s=>parseFloat(s.trim()));
-      if (parts.length >= 6) return parts[5];
-    }
-    return 0;
-  }
-
-  // trackedNodes should be the nodes themselves (fresh)
-  let trackedNodes = imageNodes.map(i => i.node);
-
-  const checkInterval = setInterval(()=> {
-    trackedNodes.forEach(node => {
-      if (!node) return;
-      const t = node.style.transform || getComputedStyle(node).transform || '';
-      const y = parseTranslateY(t);
-      if (y <= threshold) {
-        if (!collected.has(node)) {
-          collected.add(node);
-          markCollected(node);
-        }
+    if (!node) return;
+    if (node.classList.contains('collected')) return;
+    node.classList.add('collected');
+    // animate fade out & scale then remove
+    node.style.transition = 'transform 360ms ease, opacity 360ms ease';
+    node.style.opacity = '0';
+    node.style.transform = 'scale(.86) translateY(-20px)';
+    setTimeout(()=> {
+      node.style.display = 'none';
+      collected.add(node);
+      // update count text
+      const guideCountEl = document.querySelector('.paper-guide .guide-text');
+      if (guideCountEl) guideCountEl.innerHTML = `Collected ${collected.size} / ${imageNodes.length}`;
+      // if all collected, open overlay
+      if (collected.size === imageNodes.length) {
+        collectOverlay.classList.add('open');
+        // dim others except overlay
+        document.querySelectorAll('body > *').forEach(el => { if (el !== collectOverlay) el.classList.add('dimmed-hide'); });
       }
-    });
-    if (collected.size === trackedNodes.length && trackedNodes.length > 0) {
-      clearInterval(checkInterval);
-      collectOverlay.classList.add('open');
-      document.querySelectorAll('body > *').forEach(el => { if (el !== collectOverlay) el.classList.add('dimmed'); });
+    }, 380);
+  }
+
+  // collision detection helper
+  function intersectsRect(a, b){
+    return !(b.left > a.right || b.right < a.left || b.top > a.bottom || b.bottom < a.top);
+  }
+
+  // global handler used by script.js and mobile.js when a paper is released
+  window.handlePaperDrop = function(paper) {
+    try {
+      // compute bounding rects
+      const pRect = paper.getBoundingClientRect();
+      const dRect = dropbox.getBoundingClientRect();
+      if (intersectsRect(pRect, dRect)) {
+        // animate dropbox flash
+        dropbox.classList.add('active');
+        setTimeout(()=> dropbox.classList.remove('active'), 420);
+        // mark collected
+        markCollected(paper);
+      }
+    } catch (err) {
+      console.error('handlePaperDrop error', err);
     }
-  }, 120);
+  };
 
   // when user clicks view surprise: hide overlay and open flow
   if (viewSurpriseBtn) {
@@ -332,19 +330,63 @@ Every part of you feels like poetry written just for me. Wishing a magical birth
     });
   }
 
-  /* initial intro overlay / start */
+  /* --- INTRO overlay with Zoom alert & start button --- */
   const intro = document.createElement('div'); intro.className='intro-overlay';
-  intro.innerHTML = `<div class="card"><h1> Surprise! 🎁 </h1><p>Click <strong>Start</strong> to enter. Drag each card up to collect it — collect all to view the surprise.</p><button class="page-nav primary" id="__startSurprise">Start</button></div>`;
+  intro.innerHTML = `
+    <div class="card">
+      <h1> Surprise! 🎁 </h1>
+      <p>For best mobile view: please pinch to *zoom out* slightly so cards fit better. Then tap <strong>I'm ready</strong>.</p>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:14px">
+        <button class="page-nav primary" id="__zoomOk">I'm ready</button>
+        <button class="page-nav ghost" id="__startAnyway">Start anyway</button>
+      </div>
+    </div>`;
   document.body.appendChild(intro);
-  const startBtn = document.getElementById('__startSurprise');
-  if (startBtn) {
-    startBtn.addEventListener('click', ()=> {
-      intro.style.opacity='0'; intro.style.transform='scale(.98)';
-      setTimeout(()=> intro.remove(), 420);
-      const hint = document.createElement('div'); hint.className='drag-hint'; hint.textContent='Tip: Drag any card UP to collect it';
-      document.body.appendChild(hint);
-      setTimeout(()=> hint.remove(), 7000);
+
+  const zoomOkBtn = document.getElementById('__zoomOk');
+  const startAnywayBtn = document.getElementById('__startAnyway');
+
+  function removeIntroAndShowHint(){
+    // remove underlying ghosting by not dimming content but removing overlay
+    intro.style.opacity='0';
+    intro.style.transform='scale(.98)';
+    setTimeout(()=> intro.remove(), 380);
+    // small drag hint
+    const hint = document.createElement('div'); hint.className='drag-hint'; hint.textContent='Tip: Drag any card UP and drop into the box';
+    document.body.appendChild(hint);
+    setTimeout(()=> hint.remove(), 7000);
+    // reveal dropbox guide text initial state
+    const g = document.querySelector('.paper-guide .guide-text');
+    if (g) g.innerHTML = `Drag each card up and <strong>drop here</strong>`;
+    // Show underlying papers now (just in case they were hidden)
+    document.querySelectorAll('.paper').forEach(p => p.classList.remove('hidden'));
+  }
+
+  if (zoomOkBtn) {
+    zoomOkBtn.addEventListener('click', ()=> {
+      // user confirmed; remove the body zoom restriction
+      document.body.classList.add('zoom-ok');
+      removeIntroAndShowHint();
     });
   }
+  if (startAnywayBtn) {
+    startAnywayBtn.addEventListener('click', ()=> {
+      document.body.classList.add('zoom-ok');
+      removeIntroAndShowHint();
+    });
+  }
+
+  // hide underlying content while intro overlay present
+  document.querySelectorAll('.paper').forEach(p => p.classList.add('hidden'));
+
+  /* Make sure dropbox highlights on hover by checking mousemove over dropbox region */
+  document.addEventListener('mousemove', (e) => {
+    const rect = dropbox.getBoundingClientRect();
+    if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom){
+      dropbox.classList.add('active');
+    } else {
+      dropbox.classList.remove('active');
+    }
+  });
 
 });

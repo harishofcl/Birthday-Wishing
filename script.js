@@ -68,7 +68,7 @@ class Paper {
       paper.style.cursor = 'grabbing';
     });
 
-    window.addEventListener('mouseup', () => {
+    window.addEventListener('mouseup', (ev) => {
       if (this.holdingPaper) {
         this.holdingPaper = false;
         this.rotating = false;
@@ -76,6 +76,10 @@ class Paper {
         this.currentPaperX += this.velX * 2;
         this.currentPaperY += this.velY * 2;
         paper.style.transform = `translateX(${this.currentPaperX}px) translateY(${this.currentPaperY}px) rotateZ(${this.rotation}deg)`;
+        // call global drop handler if present
+        if (typeof window.handlePaperDrop === 'function') {
+          try { window.handlePaperDrop(paper); } catch (err) { console.error(err); }
+        }
       }
     });
 
