@@ -1,378 +1,214 @@
-/* ----------------------------------------------------------------------
-   Birthday Surprise — Responsive full stylesheet
-   Mobile-first. Replace your existing style.css with this file.
-   ---------------------------------------------------------------------- */
+/* ================================
+   FULL RESPONSIVE CSS – BIRTHDAY WISHING
+   Replace your entire style.css with this file
+   ================================ */
 
-/* ------------- Reset & base ------------- */
-:root{
-  --bg:#0f1724;           /* dark background */
-  --card-bg: rgba(255,255,255,0.06);
-  --glass-border: rgba(255,255,255,0.08);
-  --accent: #6fb3ff;
-  --muted: rgba(255,255,255,0.72);
-  --glass-blur: 8px;
-  --radius: 14px;
-  --max-site-width: 1100px;
-}
-
-*,
-*::before,
-*::after{
+/* GLOBAL SETUP */
+* {
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
 }
 
-html,body{
-  height:100%;
-  margin:0;
-  padding:0;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  background: linear-gradient(180deg, #081126 0%, #08111a 60%), var(--bg);
-  color: #eef2ff;
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
-  -webkit-tap-highlight-color: transparent;
-  line-height:1.45;
-  font-size:16px; /* base for mobile */
+html, body {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: linear-gradient(135deg, #081129, #0c1b3c);
+  font-family: "Poppins", sans-serif;
+  color: white;
 }
 
-/* Utility container */
-.container{
-  width:100%;
-  max-width: var(--max-site-width);
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 40px;
+}
+
+h1, h2, h3 {
+  text-align: center;
+}
+
+/* MAIN CONTAINER */
+.container {
+  width: 100%;
+  max-width: 1100px;
+  padding: 20px;
   margin: 0 auto;
-  padding: 18px;
 }
 
-/* ------------- Header / Hero ------------- */
-.header{
-  display:flex;
-  gap:12px;
-  align-items:center;
-  justify-content:space-between;
-  padding: 10px 0;
+/* GLASS CARD */
+.glass-card {
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 20px;
+  margin: 15px 0;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+  transition: 0.3s ease;
 }
 
-.brand{
-  display:flex;
-  gap:10px;
-  align-items:center;
+.glass-card:hover {
+  transform: translateY(-3px);
 }
 
-.brand .logo{
-  width:44px;
-  height:44px;
-  border-radius:10px;
-  background: linear-gradient(135deg,#8ec5ff,#5b8cff);
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  font-weight:700;
-  color:#042;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+/* CARD GRID (DESKTOP) */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-top: 20px;
 }
 
-.brand h1{
-  margin:0;
-  font-size:1.1rem;
-  letter-spacing:0.2px;
+/* CARD INNER CONTENT */
+.card-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.header-actions{
-  display:flex;
-  gap:8px;
-  align-items:center;
+.card-img {
+  width: 100%;
+  height: 180px;
+  border-radius: 14px;
+  overflow: hidden;
 }
 
-/* ------------- Cards grid (mobile first) ------------- */
-.cards{
-  display:flex;
-  flex-direction:column;
-  gap:14px;
-  margin-top: 14px;
-  align-items:stretch;
+.card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-/* individual glass card */
-.glass-card{
-  background: var(--card-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius);
+/* TEXT */
+p {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* BUTTONS */
+.btn, button, .next-btn {
+  width: 100%;
   padding: 14px;
-  overflow:hidden;
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  box-shadow: 0 8px 30px rgba(3,12,30,0.45);
-  transition: transform 220ms cubic-bezier(.2,.9,.2,1), box-shadow 220ms;
-  min-height: 120px;
-  display:flex;
-  gap:12px;
-  align-items:center;
-}
-
-/* card media + content layout */
-.card-media{
-  flex: 0 0 86px;
-  width:86px;
-  height:86px;
-  border-radius: 10px;
-  overflow:hidden;
-  display:inline-block;
-  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
-  align-self:flex-start;
-}
-
-.card-media img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  display:block;
-}
-
-/* card content */
-.card-content{
-  flex:1 1 auto;
-  min-width:0;
-}
-
-.card-content h2{
-  margin:0 0 6px 0;
-  font-size:1.05rem;
-  line-height:1.15;
-}
-
-.card-content p{
-  margin:0;
-  color: var(--muted);
-  font-size:0.95rem;
-}
-
-/* small meta row */
-.meta-row{
-  display:flex;
-  gap:8px;
-  margin-top:8px;
-  align-items:center;
-  flex-wrap:wrap;
-}
-
-.badge{
-  padding:6px 10px;
-  border-radius:999px;
-  background: rgba(255,255,255,0.04);
-  font-size:0.85rem;
-  color: var(--muted);
-}
-
-/* buttons */
-.btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  padding:10px 14px;
-  min-height:44px;
-  border-radius:10px;
-  border: none;
-  background: linear-gradient(90deg,var(--accent), #2f7bff 70%);
-  color:#08243a;
-  font-weight:600;
-  cursor:pointer;
-  text-decoration:none;
-  transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms;
-  box-shadow: 0 8px 20px rgba(75,120,255,0.18);
-}
-
-.btn:active{ transform: translateY(1px) }
-
-/* secondary button */
-.btn-ghost{
-  background:transparent;
-  border:1px solid rgba(255,255,255,0.06);
-  color:var(--muted);
-  font-weight:600;
-}
-
-/* ------------- Drag & Drop box (if you have one) ------------- */
-.dropbox{
-  border: 2px dashed rgba(255,255,255,0.06);
+  background: linear-gradient(135deg, #5798ff, #2b6cff);
   border-radius: 12px;
-  padding: 14px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
-  transition: border-color 180ms, background 180ms, transform 180ms;
-  min-height:120px;
+  border: none;
+  color: white;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-top: 14px;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
-.dropbox.dragover{
-  background: linear-gradient(180deg, rgba(111,179,255,0.06), rgba(47,123,255,0.03));
-  border-color: var(--accent);
-  transform: translateY(-2px);
+.btn:hover,
+button:hover,
+.next-btn:hover {
+  transform: scale(1.03);
 }
 
-/* small helper text */
-.small{
-  font-size:0.9rem;
-  color:var(--muted);
+/* DRAG & DROP BOX */
+.dropbox {
+  width: 100%;
+  background: rgba(255,255,255,0.08);
+  border: 2px dashed rgba(255,255,255,0.3);
+  border-radius: 16px;
+  padding: 20px;
+  margin-top: 20px;
+  text-align: center;
+  transition: 0.3s;
 }
 
-/* ------------- Modal / Surprise text ------------- */
-.modal{
-  position:fixed;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background: rgba(4,6,12,0.6);
-  z-index:9999;
-  padding:18px;
-  visibility:hidden;
-  opacity:0;
-  transition: opacity 220ms, visibility 220ms;
+.dropbox.dragover {
+  background: rgba(111,179,255,0.15);
+  border-color: #6fb3ff;
 }
 
-.modal.show{
-  visibility:visible;
-  opacity:1;
+/* IMAGES INSIDE DROPBOX */
+.drop-preview {
+  margin-top: 12px;
 }
 
-.modal-card{
-  width:100%;
-  max-width:720px;
-  border-radius:16px;
-  padding:20px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
-  border: 1px solid rgba(255,255,255,0.06);
-  box-shadow: 0 24px 60px rgba(4,10,20,0.6);
+.drop-preview img {
+  width: 100%;
+  max-width: 260px;
+  margin: 8px auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
 }
 
-/* ------------- Footer ------------- */
-.footer{
-  margin-top:20px;
-  padding:22px 0;
-  text-align:center;
-  color: rgba(255,255,255,0.6);
-  font-size:0.9rem;
+/* SURPRISE MESSAGE PAGES */
+.surprise-page {
+  margin-top: 20px;
+  background: rgba(255,255,255,0.12);
+  padding: 20px;
+  border-radius: 15px;
+  text-align: center;
+  display: none;
 }
 
-/* ------------- Accessibility & Focus ------------- */
-:focus{
-  outline: 3px solid rgba(111,179,255,0.18);
-  outline-offset: 2px;
+.surprise-page.active {
+  display: block;
 }
 
-/* ------------- Animations (reduced on mobile) ------------- */
-@media (prefers-reduced-motion: reduce){
-  *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition:none !important; }
-}
+/* MOBILE RESPONSIVENESS */
+@media (max-width: 860px) {
 
-/* subtle hover effect for cards (only on hover capable devices) */
-@media (hover:hover) and (pointer:fine){
-  .glass-card:hover{
-    transform: translateY(-6px) scale(1.01);
-    box-shadow: 0 18px 46px rgba(2,8,30,0.6);
+  h1 {
+    font-size: 1.6rem;
+  }
+
+  p {
+    font-size: 1rem;
+  }
+
+  /* Cards become vertical */
+  .cards {
+    grid-template-columns: 1fr;
+  }
+
+  .glass-card {
+    width: 100%;
+    margin: 10px 0;
+    padding: 16px;
+  }
+
+  .card-img {
+    height: 150px;
+  }
+
+  /* Dropbox full width */
+  .dropbox {
+    margin-top: 18px;
+    padding: 18px;
+  }
+
+  /* Remove hover transforms */
+  .glass-card:hover {
+    transform: none;
+  }
+
+  /* Buttons more touch-friendly */
+  .btn, button, .next-btn {
+    font-size: 1rem;
+    padding: 12px;
+  }
+
+  /* Prevent overflow */
+  * {
+    max-width: 100%;
   }
 }
 
-/* ------------- Tablet: 600px and up ------------- */
-@media (min-width:600px){
-  html{ font-size:16px; }
-  .cards{
-    gap:18px;
+/* VERY SMALL DEVICES */
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.3rem;
   }
-  .glass-card{
-    padding:16px;
-    min-height:140px;
-  }
-  .card-media{ width:110px; height:110px; flex:0 0 110px; border-radius:12px; }
-  .card-content h2{ font-size:1.2rem; }
-  .card-content p{ font-size:1rem; }
-  .header-actions{ gap:12px; }
-}
 
-/* ------------- Desktop: 1000px and up ------------- */
-@media (min-width:1000px){
-  html{ font-size:17px; }
-  body{
-    background: linear-gradient(180deg,#041124 0%, #051022 60%), #041124;
-  }
-  .container{ padding: 30px; }
-  .cards{
-    display:grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap:20px;
-    align-items:start;
-  }
-  .glass-card{
-    flex-direction:column;
-    padding:22px;
-    border-radius:18px;
-    min-height:220px;
-    align-items:flex-start;
-  }
-  .card-media{
-    width:100%;
-    height:140px;
-    flex: 0 0 auto;
-    border-radius:12px;
-    margin-bottom:12px;
-  }
-  .card-content h2{ font-size:1.25rem; }
-  .card-content p{ font-size:1.05rem; color: rgba(255,255,255,0.82); }
-  .meta-row{ margin-top:12px; }
-}
-
-/* ------------- Extra: make sure images & svg scale nicely ------------- */
-img, svg, video{
-  max-width:100%;
-  height:auto;
-  display:block;
-}
-
-/* ------------- Helpers: columns, stacks, center ------------- */
-.row{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
-.col{ display:flex; flex-direction:column; gap:8px; }
-.center{ display:flex; align-items:center; justify-content:center; }
-
-/* ------------- Edge cases & small tweaks ------------- */
-/* hide hover-only hints on touch devices */
-@media (max-width:860px){
-  .hover-hint{ display:none !important; }
-  /* reduce heavy 3D transforms on small screens */
-  .animated, .floating {
-    transform:none !important;
-    transition: opacity 180ms ease !important;
+  p {
+    font-size: 0.95rem;
   }
 }
-
-/* If you use a "next" button at end of surprise flow */
-.next-btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-width:120px;
-  padding:10px 14px;
-  border-radius:999px;
-  font-weight:700;
-  background: linear-gradient(90deg,#81c3ff,#46a0ff);
-  color:#042c3d;
-  border:none;
-  box-shadow: 0 10px 30px rgba(70,120,220,0.14);
-}
-
-/* small-screen text sizing adjustments for readability */
-@media (max-width:420px){
-  h1{ font-size:1.2rem; }
-  .brand h1{ font-size:1rem; }
-  .card-content h2{ font-size:1rem; }
-  .card-content p{ font-size:0.95rem; }
-  .container{ padding:14px; }
-}
-
-/* ------------- Debug helpers (disable when done) ------------- */
-/* .debug { outline: 1px dashed rgba(255,0,0,0.18); } */
-
